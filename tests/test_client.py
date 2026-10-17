@@ -84,3 +84,8 @@ def test_media_models_use_v2_free_endpoint_and_restore_rank() -> None:
     models = client.get_media_models("text-to-image")
     assert {m["slug"]: m["rank"] for m in models} == {"high": 1, "low": 2}
     assert models[0]["ci95"] == 9
+
+
+def test_healthcheck_counts_models_across_all_pages() -> None:
+    client = PagedClient({"/language/models/free": [[{"slug": "a"}, {"slug": "b"}], [{"slug": "c"}]]})
+    assert client.healthcheck()["model_count"] == 3

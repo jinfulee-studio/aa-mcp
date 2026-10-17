@@ -180,15 +180,15 @@ class AAClient:
     # ── Healthcheck ─────────────────────────────────────────────────
 
     def healthcheck(self) -> dict[str, Any]:
-        """Run a lightweight connectivity + auth check by fetching LLM models."""
-        data = self._get(LLM_ENDPOINT, {"page": 1})
-        pagination = data.get("pagination") if isinstance(data.get("pagination"), dict) else {}
+        """Connectivity + auth check; walks every page so model_count is the full total."""
+        rows, first = self._get_all(LLM_ENDPOINT)
+        pagination = first.get("pagination") if isinstance(first.get("pagination"), dict) else {}
         return {
             "ok": True,
-            "model_count": len(data.get("data", [])),
+            "model_count": len(rows),
             "total_pages": pagination.get("total_pages"),
-            "tier": data.get("tier"),
-            "prompt_options": data.get("prompt_options", {}),
+            "tier": first.get("tier"),
+            "prompt_options": first.get("prompt_options", {}),
         }
 
 
